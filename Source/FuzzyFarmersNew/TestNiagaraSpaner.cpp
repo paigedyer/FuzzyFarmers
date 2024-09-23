@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Underground.h"
+#include "TestNiagaraSpaner.h"
 #include "Components/SphereComponent.h"
 #include "TimerManager.h"
 #include "Math/UnrealMathUtility.h"
@@ -12,61 +12,48 @@
 #include "Components/ArrowComponent.h"
 
 // Sets default values
-AUnderground::AUnderground()
+ATestNiagaraSpaner::ATestNiagaraSpaner()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	rayCastCollision = CreateDefaultSubobject<USphereComponent>(TEXT("RaycastCollision"));
-	rayCastCollision->OnComponentHit.AddDynamic(this, &AUnderground::OnHit);
 
 	RootComponent = rayCastCollision;
 
 	dirtMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DirtMesh"));
 	dirtMesh->SetupAttachment(rayCastCollision);
 	// TODO: Set no collision on Static Mesh
-
-	arrowcomponent = CreateDefaultSubobject<UArrowComponent>(TEXT("ArrowComponent"));
-	arrowcomponent->SetupAttachment(dirtMesh);
-
 }
 
 // Called when the game starts or when spawned
-void AUnderground::BeginPlay()
+void ATestNiagaraSpaner::BeginPlay()
 {
-	Super::BeginPlay();
 
 	dmiMat = UMaterialInstanceDynamic::Create(dirtMat, this);
 	dirtMesh->SetMaterial(0, dmiMat);
 	dmiMat->SetVectorParameterValue("SpawnpointColor", dirtMeshColor);
 
-	arrowRotation = arrowcomponent->GetComponentRotation();	// World Space!
+	ContainsFuzzy();
+	
 }
 
-// Called every frame
-void AUnderground::Tick(float DeltaTime)
+void ATestNiagaraSpaner::DirtBurst()
 {
-	Super::Tick(DeltaTime);
-
-}
-
-void AUnderground::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
-{
-}
-
-void AUnderground::DirtBurst()
-{
-	UNiagaraComponent* particleComp = UNiagaraFunctionLibrary::SpawnSystemAttached(dirtParticle, dirtMesh, NAME_None, FVector(0.f, 0.f, 0.f), arrowRotation, EAttachLocation::KeepRelativeOffset, true);
+	UNiagaraComponent* particleComp = UNiagaraFunctionLibrary::SpawnSystemAttached(dirtParticle, dirtMesh, NAME_None, FVector(0.f, 0.f, 0.f), FRotator(0.f), EAttachLocation::KeepRelativeOffset, true);
 	if (particleComp) {
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Purple, TEXT("BURST"));
 		particleComp->SetNiagaraVariableLinearColor(FString("ParticleColor"), dirtMeshColor);
-
+		// Orient upwards
+		particleComp->SetNiagaraVariableVec3(FString("Orientation"), FVector(0.f, 0.f, 50.f));
+		particleComp->SetNiagaraVariableVec3(FString("Offset"), FVector(0.f, 0.f, 10.f));
 		// Set a new random time
 		int index = FMath::RandRange(0, (dirtSounds.Num()) - 1);
 		UGameplayStatics::PlaySoundAtLocation(this, dirtSounds[index], GetActorLocation());
 	}
-}
 
-void AUnderground::ContainsFuzzy()
+}
+void ATestNiagaraSpaner::ContainsFuzzy()
 {
 	if (!containsFuzzy)
 	{
@@ -79,12 +66,12 @@ void AUnderground::ContainsFuzzy()
 	}
 }
 
-void AUnderground::FuzzyPrepared()
+void ATestNiagaraSpaner::FuzzyPrepared()
 {
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AUnderground::PlaySound, FMath::RandRange(soundTimeMin, soundTimeMax), true);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ATestNiagaraSpaner::PlaySound, FMath::RandRange(soundTimeMin, soundTimeMax), true);
 }
 
-void AUnderground::PlaySound()
+void ATestNiagaraSpaner::PlaySound()
 {
 	if (!playing)
 	{
@@ -100,5 +87,4 @@ void AUnderground::PlaySound()
 		playing = false;
 	}
 }
-
 

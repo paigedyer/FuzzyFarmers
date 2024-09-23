@@ -4,24 +4,20 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Bush.generated.h"
+#include "TestNiagaraSpaner.generated.h"
 
 UCLASS()
-class FUZZYFARMERSNEW_API ABush : public AActor
+class FUZZYFARMERSNEW_API ATestNiagaraSpaner : public AActor
 {
 	GENERATED_BODY()
-
-public:
+	
+public:	
 	// Sets default values for this actor's properties
-	ABush();
+	ATestNiagaraSpaner();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
 private:
 	bool playing = false;
@@ -30,57 +26,40 @@ private:
 
 	int randTimeInterval;
 	const int soundTimeMin = 3;
-	const int soundTimeMax = 6;
+	const int soundTimeMax = 8;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class USphereComponent* rayCastCollision;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UStaticMeshComponent* bush;
+	class UStaticMeshComponent* dirtMesh;
 
-	UPROPERTY(EditAnywhere)
-	class UArrowComponent* arrowcomponent;
-
-	UPROPERTY()
-	FLinearColor leavesColor;
-
-	class USoundWave* fuzzyHint;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FLinearColor dirtMeshColor;
 
 	UPROPERTY(EditAnywhere)
 	TArray<class USoundWave*> fuzzySounds;
 
 	UPROPERTY(EditAnywhere)
-	TArray<class USoundWave*> leavesSounds;
+	TArray<class USoundWave*> dirtSounds;
 
 	UPROPERTY(EditAnywhere)
-	TArray<class UStaticMesh*> bushMeshses;
-
-	UPROPERTY(EditAnywhere)
-	class UBoxComponent* playerCollision;
-
-	UPROPERTY(EditAnywhere)
-	class UNiagaraSystem* leavesBurst;
+	class UNiagaraSystem* dirtParticle;
 
 	UPROPERTY(EditAnywhere)
 	UMaterial* baseMat;
 
 	UPROPERTY(EditAnywhere)
-	UMaterialInterface* bushMat;
+	UMaterialInterface* dirtMat;
 
 	UPROPERTY()
 	UMaterialInstanceDynamic* dmiMat;
 
-	FRotator arrowRotation;
-
 	bool containsFuzzy = false;
 
 	UFUNCTION()
-	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-		FVector NormalImpulse, const FHitResult& Hit);
-
-	UFUNCTION()
-	void LeavesBurst();
+	void DirtBurst();
 
 	UFUNCTION()
 	void ContainsFuzzy();
@@ -90,8 +69,5 @@ public:
 
 	UFUNCTION()
 	void PlaySound();
-
-	UFUNCTION()
-	FLinearColor GetRandColor();
 
 };
