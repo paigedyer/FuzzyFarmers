@@ -33,15 +33,21 @@ void ASpawningManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// check current # of fuzzies prepared
+	// when you capture one, lower the number
+	// if num < max
+	// PlaceFuzzies
+
 }
 
 void ASpawningManager::PlaceFuzzies()
 {
 	// Prepare spawnpoints until the max number of prepared fuzzies is reached
-	for (int i = 0; i < maxFuzziesPlaced; i++)
+	while (currentNumFuzzies < maxFuzziesPlaced)
 	{
 		int tmp = FMath::RandRange(1, 4);
 		// Choose a random number from 1-4 for a random spawnpoint
+		currentNumFuzzies += 1;
 		switch (tmp)
 		{
 		case 1:

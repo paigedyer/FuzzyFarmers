@@ -9,6 +9,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
+#include "Components/ArrowComponent.h"
 
 // Sets default values
 AGrass::AGrass()
@@ -25,6 +26,9 @@ AGrass::AGrass()
 
 	grass->SetupAttachment(rayCastCollision);
 
+	arrowcomponent = CreateDefaultSubobject<UArrowComponent>(TEXT("ArrowComponent"));
+	arrowcomponent->SetupAttachment(grass);
+
 }
 
 // Called when the game starts or when spawned
@@ -40,8 +44,9 @@ void AGrass::BeginPlay()
 	dmiMat = UMaterialInstanceDynamic::Create(grassMat, this);
 	grass->SetMaterial(0, dmiMat);
 	// Use the bush material
-	dmiMat->SetVectorParameterValue("BushColor", grassColor);
+	dmiMat->SetVectorParameterValue("SpawnpointColor", grassColor);
 
+	arrowRotation = arrowcomponent->GetComponentRotation();	// World Space!
 }
 
 // Called every frame
@@ -57,9 +62,10 @@ void AGrass::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveC
 
 void AGrass::GrassBurst()
 {
-	UNiagaraComponent* particleComp = UNiagaraFunctionLibrary::SpawnSystemAttached(grassBurst, grass, NAME_None, FVector(0.f, 0.f, 0.f), FRotator(0.f), EAttachLocation::KeepRelativeOffset, true);
+	UNiagaraComponent* particleComp = UNiagaraFunctionLibrary::SpawnSystemAttached(grassBurst, grass, NAME_None, FVector(0.f, 0.f, 0.f), arrowRotation, EAttachLocation::KeepRelativeOffset, true);
 	if (particleComp) {
 		particleComp->SetNiagaraVariableLinearColor(FString("ParticleColor"), grassColor);
+
 		// Set a new random time
 		int index = FMath::RandRange(0, (grassSounds.Num()) - 1);
 		UGameplayStatics::PlaySoundAtLocation(this, grassSounds[index], GetActorLocation());

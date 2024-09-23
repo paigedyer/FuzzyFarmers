@@ -10,6 +10,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
+#include "Components/ArrowComponent.h"
 
 
 // Sets default values
@@ -31,6 +32,9 @@ AOakTree::AOakTree()
 
 	treeMesh->SetupAttachment(rayCastCollision);
 
+	arrowcomponent = CreateDefaultSubobject<UArrowComponent>(TEXT("ArrowComponent"));
+	arrowcomponent->SetupAttachment(treeMesh);
+
 }
 
 // Called when the game starts or when spawned
@@ -42,7 +46,10 @@ void AOakTree::BeginPlay()
 
 	dmiMat = UMaterialInstanceDynamic::Create(leavesMat, this);
 	treeMesh->SetMaterial(1, dmiMat);
-	dmiMat->SetVectorParameterValue("LeavesColor", leavesColor);
+	dmiMat->SetVectorParameterValue("SpawnpointColor", leavesColor);
+
+	arrowRotation = arrowcomponent->GetComponentRotation();	// World Space!
+
 }
 
 // Called every frame
@@ -59,9 +66,20 @@ void AOakTree::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiv
 
 void AOakTree::LeavesBurst()
 {
-	UNiagaraComponent* particleComp = UNiagaraFunctionLibrary::SpawnSystemAttached(leavesBurst, treeMesh, NAME_None, FVector(0.f, 0.f, 0.f), FRotator(0.f), EAttachLocation::KeepRelativeOffset, true);
+	FRotator minRot = arrowRotation - FRotator(10.f, 10.f, 10.f);
+	FRotator maxRot = arrowRotation - FRotator(10.f, 10.f, 10.f);
+	float rot = FMath::RandRange(minRot.Pitch, maxRot.Pitch);
+	float yaw = FMath::RandRange(minRot.Yaw, maxRot.Yaw);
+	float roll = FMath::RandRange(minRot.Roll, maxRot.Roll);
+
+
+	// Unsure if this will reduce performance, I doubt it but I can remove it if it's too much.
+	FRotator rotation = FRotator(rot, yaw, roll);
+
+	UNiagaraComponent* particleComp = UNiagaraFunctionLibrary::SpawnSystemAttached(leavesBurst, treeMesh, NAME_None, FVector(0.f, 0.f, 0.f), rotation, EAttachLocation::KeepRelativeOffset, true);
 	if (particleComp) {
 		particleComp->SetNiagaraVariableLinearColor(FString("ParticleColor"), leavesColor);
+
 		// Set a new random time
 		int index = FMath::RandRange(0, (leavesSounds.Num()) - 1);
 		UGameplayStatics::PlaySoundAtLocation(this, leavesSounds[index], GetActorLocation());

@@ -30,10 +30,15 @@ private:
 
 	int randTimeInterval;
 	const int soundTimeMin = 3;
-	const int soundTimeMax = 8;
+	const int soundTimeMax = 6;
 
 public:
 	bool containsFuzzy = false;
+
+	FRotator arrowRotation;
+
+	UPROPERTY(EditAnywhere)
+	class UArrowComponent* arrowcomponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class USphereComponent* rayCastCollision;

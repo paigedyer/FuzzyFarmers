@@ -30,9 +30,14 @@ private:
 
 	int randTimeInterval;
 	const int soundTimeMin = 3;
-	const int soundTimeMax = 8;
+	const int soundTimeMax = 6;
 
 public:
+	UPROPERTY(EditAnywhere)
+	class UArrowComponent* arrowcomponent;
+
+	FRotator arrowRotation;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class USphereComponent* rayCastCollision;
 

@@ -3,6 +3,7 @@
 #include "Bush.h"
 #include "Components/SphereComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/ArrowComponent.h"
 #include "TimerManager.h"
 #include "Math/UnrealMathUtility.h"
 #include "Kismet/GameplayStatics.h"
@@ -26,6 +27,9 @@ ABush::ABush()
 	bush = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BushMesh"));
 	bush->SetupAttachment(rayCastCollision);
 
+	arrowcomponent = CreateDefaultSubobject<UArrowComponent>(TEXT("ArrowComponent"));
+	arrowcomponent->SetupAttachment(bush);
+
 }
 
 // Called when the game starts or when spawned
@@ -40,7 +44,9 @@ void ABush::BeginPlay()
 
 	dmiMat = UMaterialInstanceDynamic::Create(bushMat, this);
 	bush->SetMaterial(0, dmiMat);
-	dmiMat->SetVectorParameterValue("BushColor", leavesColor);
+	dmiMat->SetVectorParameterValue("SpawnpointColor", leavesColor);
+
+	arrowRotation = arrowcomponent->GetComponentRotation();	// World Space!
 
 }
 
@@ -95,9 +101,10 @@ FLinearColor ABush::GetRandColor()
 
 void ABush::LeavesBurst()
 {
-	UNiagaraComponent* particleComp = UNiagaraFunctionLibrary::SpawnSystemAttached(leavesBurst, bush, NAME_None, FVector(0.f, 0.f, 0.f), FRotator(0.f), EAttachLocation::KeepRelativeOffset, true);
+	UNiagaraComponent* particleComp = UNiagaraFunctionLibrary::SpawnSystemAttached(leavesBurst, arrowcomponent, NAME_None, FVector(0.f, 0.f, 0.f), arrowRotation, EAttachLocation::KeepRelativeOffset, true);
 	if (particleComp) {
 		particleComp->SetNiagaraVariableLinearColor(FString("ParticleColor"), leavesColor);
+
 		// Set a new random time
 		int index = FMath::RandRange(0, (leavesSounds.Num()) - 1);
 		UGameplayStatics::PlaySoundAtLocation(this, leavesSounds[index], GetActorLocation());
