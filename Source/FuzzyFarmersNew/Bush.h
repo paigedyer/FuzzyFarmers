@@ -4,12 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#pragma once
+#include "Interact_I.h"
 #include "Bush.generated.h"
 
 UCLASS()
-class FUZZYFARMERSNEW_API ABush : public AActor
+class FUZZYFARMERSNEW_API ABush : public AActor, public IInteract_I
 {
 	GENERATED_BODY()
+
+	UPROPERTY()
+	class UTextRenderComponent* textComponent;
+
+	bool bTRActive = false;
 
 public:
 	// Sets default values for this actor's properties
@@ -93,5 +100,9 @@ public:
 
 	UFUNCTION()
 	FLinearColor GetRandColor();
+
+	virtual void ActPressE(FVector start) override;
+
+	virtual void LeavePoint() override;
 
 };
