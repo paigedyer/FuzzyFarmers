@@ -127,5 +127,3 @@ FLinearColor AOakTree::GetRandColor()
 	FLinearColor color = leavesColors[FMath::RandRange((0), (leavesColors.Num() - 1))];
 	return color;
 }
-
-

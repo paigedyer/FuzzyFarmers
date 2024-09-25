@@ -118,4 +118,3 @@ FLinearColor AGrass::GetRandColor()
 	FLinearColor tempColor = FLinearColor(FMath::RandRange(rMin, rMax), g, FMath::RandRange(bMin, bMax));
 	return tempColor;
 }
-
